@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require "heckler"
+
+puts "test"
+Heckler::CLI.start(ARGV)
