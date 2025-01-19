@@ -1,6 +1,28 @@
 #!/usr/bin/env ruby
 
-require "heckler"
+require_relative '../lib/heckler'
 
-puts "test"
-Heckler::CLI.start(ARGV)
+$stdout.sync = true
+require 'optparse'
+
+command = ARGV.shift
+
+case command
+when 'init'
+  Config.init
+when nil
+  config = Heckler::Config.instance
+  aspell = Heckler::Aspell.new(config)
+  directory = Dir.pwd
+  @checkers = [Heckler::Checker::FileSystem.new(config, aspell)]
+  issues = []
+
+  @checkers.each do |checker|
+    issues.concat(checker.check(directory))
+  end
+
+  puts issues.inspect
+else
+  puts "Unknown command: #{command}"
+  puts 'Available commands: init, or no command for default behavior'
+end

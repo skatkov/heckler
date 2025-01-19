@@ -1,6 +1,6 @@
-require_relative "../aspell"
+require_relative '../aspell'
 
-require "find"
+require 'find'
 
 # The Checker::FileSystem class provides functionality to check spelling in file and directory names within a given directory structure.
 #
@@ -30,21 +30,18 @@ module Heckler
       def check(directory)
         files_or_directories = []
         Find.find(directory) do |path|
-          next if File.basename(path).start_with?(".")
-          next if File.fnmatch("*/.git/*", path)
+          next if File.basename(path).start_with?('.')
+          next if File.fnmatch('*/.*/*', path)
 
           files_or_directories << path
         end
 
-
         files_or_directories.sort_by! { |path| File.realpath(path) }
-
-        puts files_or_directories
 
         issues = []
 
         files_or_directories.each do |file_or_directory|
-          name = SpellcheckFormatter.format(File.basename(file_or_directory, ".*"))
+          name = SpellcheckFormatter.format(File.basename(file_or_directory, '.*'))
           new_issues = @spellchecker.check(name).map do |misspelling|
             Issue.new(misspelling, File.realpath(file_or_directory), 0)
           end
@@ -60,10 +57,10 @@ module Heckler
   class SpellcheckFormatter
     def self.format(input)
       # Remove leading underscores
-      input = input.gsub(/^_+/, "")
+      input = input.gsub(/^_+/, '')
 
       # Replace underscores and dashes with spaces
-      input = input.tr("_-", " ")
+      input = input.tr('_-', ' ')
 
       # Insert spaces between lowercase and uppercase letters (camelCase or PascalCase)
       input = input.gsub(/([a-z])([A-Z])/, '\1 \2')
@@ -72,7 +69,7 @@ module Heckler
       input = input.gsub(/([A-Z]+)([A-Z][a-z])/, '\1 \2')
 
       # Replace multiple spaces with a single space
-      input = input.gsub(/\s+/, " ")
+      input = input.gsub(/\s+/, ' ')
 
       # Convert the final result to lowercase
       input.downcase
